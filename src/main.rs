@@ -1,4 +1,6 @@
 extern crate hyper;
+extern crate ftp;
+extern crate url as urllib;
 
 use std::io::Read;
 
@@ -20,11 +22,23 @@ fn main() {
 
     let mut buffer = [0u8;BUFFER_SIZE];
 
-    // TODO if http
-    let client = hyper::client::Client::new();
-    let mut response = client.get(&url).send().unwrap();
+    let mut reader : Box<std::io::Read> = if url.starts_with("ftp://") {
+        let parsed_url = urllib::Url::parse(&url).expect("invalid url");
+        let mut client = ftp::FtpStream::connect(&parsed_url).unwrap();
+        let mut username = parsed_url.username();
+        if username.is_empty() {
+            username = "anonymous";
+        }
+        let password = parsed_url.password().unwrap_or("blub@bla.com");
+        client.login(&username, &password).unwrap();
+        Box::new(client.get(parsed_url.path()).unwrap())
+    } else {
+        let client = hyper::client::Client::new();
+        Box::new(client.get(&url).send().unwrap())
+    };
+
     loop {
-        let read_bytes = response.read(&mut buffer).expect("reading error");
+        let read_bytes = reader.read(&mut buffer).expect("reading error");
         if read_bytes == 0 {
             break;
         }

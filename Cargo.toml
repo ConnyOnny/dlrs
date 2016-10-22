@@ -5,4 +5,5 @@ authors = ["Constantin Berhard <git.mail.enormator@xoxy.net>"]
 
 [dependencies]
 hyper = "*"
-
+ftp = "*"
+url = "*"
