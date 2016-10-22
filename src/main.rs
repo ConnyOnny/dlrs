@@ -10,8 +10,8 @@ fn main() {
     let usagestring = format!("Usage: {} url [outfilename]\nIf no outfilename is given, will download to stdout", programname);
     let url = args.next().expect(&usagestring);
     let stdout = std::io::stdout();
-    let mut outwriter : Box<std::io::Write> = match args.next() {
-        Some(fname) => unimplemented!(),
+    let mut writer : Box<std::io::Write> = match args.next() {
+        Some(fname) => Box::new(std::fs::File::create(fname).expect("Couldn't create output file.")),
         None => Box::new(stdout.lock()),
     };
     if args.next().is_some() {
@@ -28,6 +28,6 @@ fn main() {
         if read_bytes == 0 {
             break;
         }
-        outwriter.write_all(&buffer[0..read_bytes]).expect("writing error");
+        writer.write_all(&buffer[0..read_bytes]).expect("writing error");
     }
 }
