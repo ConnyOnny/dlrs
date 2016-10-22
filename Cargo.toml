@@ -1,0 +1,8 @@
+[package]
+name = "dlrs"
+version = "0.1.0"
+authors = ["Constantin Berhard <git.mail.enormator@xoxy.net>"]
+
+[dependencies]
+hyper = "*"
+
