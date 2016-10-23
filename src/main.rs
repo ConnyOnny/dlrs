@@ -25,10 +25,10 @@ fn main() {
     let mut reader : Box<std::io::Read> = if url.starts_with("ftp://") {
         let parsed_url = urllib::Url::parse(&url).expect("invalid url");
         let mut client = ftp::FtpStream::connect(&parsed_url).unwrap();
-        let mut username = parsed_url.username();
-        if username.is_empty() {
-            username = "anonymous";
-        }
+        let username = match parsed_url.username() {
+            "" => "anonymous",
+            x => x,
+        };
         let password = parsed_url.password().unwrap_or("blub@bla.com");
         client.login(&username, &password).unwrap();
         Box::new(client.get(parsed_url.path()).unwrap())
